@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import org.springframework.data.domain.PageImpl;
 import com.eaglebank.model.User;
+import com.eaglebank.exceptions.NotFoundException;
 
 @WebMvcTest(BankAccountController.class)
 public class BankAccountControllerTest {
@@ -93,7 +94,7 @@ public class BankAccountControllerTest {
 
     @Test
     void testDeleteBankAccount_NotFound() throws Exception {
-        Mockito.doThrow(new RuntimeException("Bank account not found with id: 99")).when(bankAccountService).deleteBankAccountById(99L);
+        Mockito.doThrow(new NotFoundException("Bank account not found with id: 99")).when(bankAccountService).deleteBankAccountById(99L);
         mockMvc.perform(delete("/v1/accounts/99"))
                 .andExpect(status().isNotFound());
     }
