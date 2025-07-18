@@ -6,28 +6,24 @@ import com.eaglebank.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import com.eaglebank.model.User;
 import java.util.List;
 import com.eaglebank.exceptions.NotFoundException;
-import org.springframework.http.MediaType;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(UserController.class)
 public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -38,16 +34,14 @@ public class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private String readJson(String path) throws Exception {
+        return new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(getClass().getResource(path).toURI())));
+    }
+
     @Test
     void testCreateUser() throws Exception {
-        UserRequestDTO requestFromFile = objectMapper.readValue(
-            getClass().getResourceAsStream("/payloads/user-request.json"),
-            UserRequestDTO.class
-        );
-        UserResponseDTO responseFromFile = objectMapper.readValue(
-            getClass().getResourceAsStream("/payloads/user-response.json"),
-            UserResponseDTO.class
-        );
+        UserRequestDTO requestFromFile = objectMapper.readValue(readJson("/payloads/user-request.json"), UserRequestDTO.class);
+        UserResponseDTO responseFromFile = objectMapper.readValue(readJson("/payloads/user-response.json"), UserResponseDTO.class);
         Mockito.when(userService.saveUser(any())).thenReturn(userResponseDTOToUser(responseFromFile));
         mockMvc.perform(post("/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -59,14 +53,8 @@ public class UserControllerTest {
 
     @Test
     void testUpdateUser() throws Exception {
-        UserRequestDTO updatedRequest = objectMapper.readValue(
-            getClass().getResourceAsStream("/payloads/user-request.json"),
-            UserRequestDTO.class
-        );
-        UserResponseDTO updatedResponse = objectMapper.readValue(
-            getClass().getResourceAsStream("/payloads/user-response.json"),
-            UserResponseDTO.class
-        );
+        UserRequestDTO updatedRequest = objectMapper.readValue(readJson("/payloads/user-request.json"), UserRequestDTO.class);
+        UserResponseDTO updatedResponse = objectMapper.readValue(readJson("/payloads/user-response.json"), UserResponseDTO.class);
         Mockito.when(userService.updateUser(eq(1L), any())).thenReturn(userResponseDTOToUser(updatedResponse));
         mockMvc.perform(put("/v1/users/1")
                 .contentType(MediaType.APPLICATION_JSON)

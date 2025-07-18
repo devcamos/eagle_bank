@@ -40,4 +40,13 @@ public class GlobalExceptionHandler {
         error.put("error", "Internal server error: " + ex.getMessage());
         return error;
     }
+
+    @ExceptionHandler(InsufficientFundsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Map<String, String> handleInsufficientFundsException(InsufficientFundsException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return error;
+    }
 } 
