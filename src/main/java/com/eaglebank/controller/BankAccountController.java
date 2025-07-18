@@ -32,69 +32,35 @@ public class BankAccountController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Delete a bank account", description = "Deletes a bank account by its unique ID.")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBankAccount(@PathVariable Long id) {
         bankAccountService.deleteBankAccountById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Create a new bank account",
-        requestBody = @RequestBody(
-            required = true,
-            content = @Content(
-                schema = @Schema(implementation = com.eaglebank.model.dto.BankAccountRequestDTO.class),
-                examples = @ExampleObject(name = "BankAccountRequest", value = "{\n  \"accountNumber\": \"1234567890\",\n  \"userId\": 1,\n  \"type\": \"CHECKING\",\n  \"balance\": 100.00,\n  \"currency\": \"USD\",\n  \"status\": \"ACTIVE\"\n}")
-            )
-        ),
-        responses = {
-            @ApiResponse(
-                responseCode = "201",
-                description = "Bank account created successfully",
-                content = @Content(
-                    schema = @Schema(implementation = com.eaglebank.model.dto.BankAccountResponseDTO.class),
-                    examples = @ExampleObject(name = "BankAccountResponse", value = "{\n  \"id\": 1,\n  \"accountNumber\": \"1234567890\",\n  \"userId\": 1,\n  \"type\": \"CHECKING\",\n  \"balance\": 100.00,\n  \"currency\": \"USD\",\n  \"status\": \"ACTIVE\",\n  \"createdAt\": \"2024-07-18T08:00:00\",\n  \"updatedAt\": \"2024-07-18T08:00:00\"\n}")
-                )
-            )
-        }
-    )
+    @Operation(summary = "Create a new bank account", description = "Creates a new bank account for a user.")
     @PostMapping
     public ResponseEntity<BankAccountResponseDTO> createBankAccount(@Valid @RequestBody BankAccountRequestDTO dto) {
         BankAccount created = bankAccountService.createBankAccount(toBankAccount(dto));
         return ResponseEntity.status(201).body(toBankAccountResponseDTO(created));
     }
 
+    @Operation(summary = "Update a bank account", description = "Updates an existing bank account by ID.")
     @PutMapping("/{id}")
     public ResponseEntity<BankAccountResponseDTO> updateBankAccount(@PathVariable Long id, @Valid @RequestBody BankAccountRequestDTO dto) {
         BankAccount updated = bankAccountService.updateBankAccount(id, toBankAccount(dto));
         return ResponseEntity.ok(toBankAccountResponseDTO(updated));
     }
 
-    @Operation(summary = "Get a bank account by ID",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Bank account found",
-                content = @Content(
-                    schema = @Schema(implementation = com.eaglebank.model.dto.BankAccountResponseDTO.class),
-                    examples = @ExampleObject(name = "BankAccountResponse", value = "{\n  \"id\": 1,\n  \"accountNumber\": \"1234567890\",\n  \"userId\": 1,\n  \"type\": \"CHECKING\",\n  \"balance\": 100.00,\n  \"currency\": \"USD\",\n  \"status\": \"ACTIVE\",\n  \"createdAt\": \"2024-07-18T08:00:00\",\n  \"updatedAt\": \"2024-07-18T08:00:00\"\n}")
-                )
-            ),
-            @ApiResponse(
-                responseCode = "404",
-                description = "Bank account not found",
-                content = @Content(
-                    schema = @Schema(implementation = java.util.Map.class),
-                    examples = @ExampleObject(name = "NotFoundError", value = "{\n  \"error\": \"Bank account not found with id: 99\"\n}")
-                )
-            )
-        }
-    )
+    @Operation(summary = "Get a bank account by ID", description = "Fetches a bank account by its unique ID.")
     @GetMapping("/{id}")
     public ResponseEntity<BankAccountResponseDTO> getBankAccountById(@PathVariable Long id) {
         BankAccount account = bankAccountService.getBankAccountById(id);
         return ResponseEntity.ok(toBankAccountResponseDTO(account));
     }
 
+    @Operation(summary = "Get all bank accounts", description = "Fetches a list of all bank accounts.")
     @GetMapping
     public ResponseEntity<List<BankAccountResponseDTO>> getAllBankAccounts(Pageable pageable) {
         return ResponseEntity.ok(

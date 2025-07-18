@@ -1,0 +1,9 @@
+{
+  "id": 2,
+  "amount": 200.00,
+  "type": "WITHDRAWAL",
+  "status": "FAILED",
+  "description": "Failed withdrawal: insufficient funds.",
+  "timestamp": "2024-07-18T10:05:00",
+  "bankAccountId": 1
+} 

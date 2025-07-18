@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Slf4j
 @RestController
@@ -28,69 +29,32 @@ public class UserController {
         this.userService = userService;
     }
 
-    @Operation(summary = "Create a new user",
-        requestBody = @RequestBody(
-            required = true,
-            content = @Content(
-                schema = @Schema(implementation = com.eaglebank.model.dto.UserRequestDTO.class),
-                examples = @ExampleObject(name = "UserRequest", value = "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john@example.com\",\n  \"phoneNumber\": \"1234567890\",\n  \"address\": \"123 Main St\",\n  \"dateOfBirth\": \"1990-01-01\"\n}")
-            )
-        ),
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "User created successfully",
-                content = @Content(
-                    schema = @Schema(implementation = com.eaglebank.model.dto.UserResponseDTO.class),
-                    examples = @ExampleObject(name = "UserResponse", value = "{\n  \"id\": 1,\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john@example.com\",\n  \"phoneNumber\": \"1234567890\",\n  \"address\": \"123 Main St\",\n  \"dateOfBirth\": \"1990-01-01\"\n}")
-                )
-            )
-        }
-    )
+    @Operation(summary = "Create a new user", description = "Creates a new user with the provided details.")
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO dto) {
-        log.debug("[createUser] Received request body: {}", dto);
         log.debug("Received UserRequestDTO: {}", dto);
         User user = toUser(dto);
         User savedUser = userService.saveUser(user);
         return ResponseEntity.ok(toUserResponseDTO(savedUser));
     }
 
+    @Operation(summary = "Update a user", description = "Updates an existing user by ID with the provided details.")
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequestDTO dto) {
-        log.debug("[updateUser] Received request body: {}", dto);
         log.debug("Received UserRequestDTO for update: {}", dto);
         User user = toUser(dto);
         User updatedUser = userService.updateUser(id, user);
         return ResponseEntity.ok(toUserResponseDTO(updatedUser));
     }
 
-    @Operation(summary = "Get a user by ID",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "User found",
-                content = @Content(
-                    schema = @Schema(implementation = com.eaglebank.model.dto.UserResponseDTO.class),
-                    examples = @ExampleObject(name = "UserResponse", value = "{\n  \"id\": 1,\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john@example.com\",\n  \"phoneNumber\": \"1234567890\",\n  \"address\": \"123 Main St\",\n  \"dateOfBirth\": \"1990-01-01\"\n}")
-                )
-            ),
-            @ApiResponse(
-                responseCode = "404",
-                description = "User not found",
-                content = @Content(
-                    schema = @Schema(implementation = java.util.Map.class),
-                    examples = @ExampleObject(name = "NotFoundError", value = "{\n  \"error\": \"User not found with id: 99\"\n}")
-                )
-            )
-        }
-    )
+    @Operation(summary = "Get a user by ID", description = "Fetches a user by their unique ID.")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         return ResponseEntity.ok(toUserResponseDTO(user));
     }
 
+    @Operation(summary = "Get all users", description = "Fetches a list of all users.")
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<User> users = userService.getAllUsers();
@@ -98,6 +62,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Delete a user", description = "Deletes a user by their unique ID.")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUserById(id);

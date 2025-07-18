@@ -1,0 +1,9 @@
+{
+  "id": 1,
+  "amount": 100.00,
+  "type": "DEPOSIT",
+  "status": "COMPLETED",
+  "description": "Initial deposit",
+  "timestamp": "2024-07-18T10:00:00",
+  "bankAccountId": 1
+} 
