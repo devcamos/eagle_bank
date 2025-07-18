@@ -3,14 +3,12 @@ package com.eaglebank.model.dto;
 import com.eaglebank.model.AccountType;
 import com.eaglebank.model.AccountStatus;
 import jakarta.validation.constraints.*;
-import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class BankAccountRequestDTO {

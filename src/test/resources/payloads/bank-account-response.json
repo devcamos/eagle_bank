@@ -1,0 +1,11 @@
+{
+  "id": 1,
+  "accountNumber": "1234567890",
+  "userId": 1,
+  "type": "CHECKING",
+  "balance": 100.00,
+  "currency": "USD",
+  "status": "ACTIVE",
+  "createdAt": "2024-07-18T08:00:00",
+  "updatedAt": "2024-07-18T08:00:00"
+} 

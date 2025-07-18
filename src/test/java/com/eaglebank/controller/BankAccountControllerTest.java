@@ -6,7 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,8 +28,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import org.springframework.data.domain.PageImpl;
 import com.eaglebank.model.User;
 import com.eaglebank.exceptions.NotFoundException;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
-@WebMvcTest(BankAccountController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class BankAccountControllerTest {
 
     @Autowired
@@ -40,26 +44,11 @@ public class BankAccountControllerTest {
     @MockBean
     private UserService userService;
 
-    private BankAccountRequestDTO bankAccountRequestDTO = BankAccountRequestDTO.builder()
-            .accountNumber("1234567890")
-            .userId(1L)
-            .type(AccountType.CHECKING)
-            .balance(new BigDecimal("100.00"))
-            .currency("USD")
-            .status(AccountStatus.ACTIVE)
-            .build();
-    private BankAccountResponseDTO bankAccountResponseDTO = BankAccountResponseDTO.builder()
-            .id(1L)
-            .accountNumber("1234567890")
-            .userId(1L)
-            .type(AccountType.CHECKING)
-            .balance(new BigDecimal("100.00"))
-            .currency("USD")
-            .status(AccountStatus.ACTIVE)
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .build();
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private BankAccountRequestDTO bankAccountRequestDTO;
+    private BankAccountResponseDTO bankAccountResponseDTO;
 
     private User testUser = User.builder()
             .id(1L)
@@ -101,24 +90,38 @@ public class BankAccountControllerTest {
 
     @Test
     void testCreateBankAccount() throws Exception {
+        BankAccountRequestDTO requestFromFile = objectMapper.readValue(
+            getClass().getResourceAsStream("/payloads/bank-account-request.json"),
+            BankAccountRequestDTO.class
+        );
+        Mockito.when(userService.getUserById(1L)).thenReturn(testUser);
         Mockito.when(bankAccountService.createBankAccount(any())).thenReturn(buildBankAccount());
         mockMvc.perform(post("/v1/accounts")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(bankAccountRequestDTO)))
+                .content(objectMapper.writeValueAsString(requestFromFile)))
                 .andExpect(status().isCreated());
     }
 
     @Test
     void testUpdateBankAccount() throws Exception {
+        BankAccountRequestDTO updatedRequest = objectMapper.readValue(
+            getClass().getResourceAsStream("/payloads/bank-account-request.json"),
+            BankAccountRequestDTO.class
+        );
+        Mockito.when(userService.getUserById(1L)).thenReturn(testUser);
         Mockito.when(bankAccountService.updateBankAccount(eq(1L), any())).thenReturn(buildBankAccount());
         mockMvc.perform(put("/v1/accounts/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(bankAccountRequestDTO)))
+                .content(objectMapper.writeValueAsString(updatedRequest)))
                 .andExpect(status().isOk());
     }
 
     @Test
     void testGetBankAccountById() throws Exception {
+        BankAccountResponseDTO responseFromFile = objectMapper.readValue(
+            getClass().getResourceAsStream("/payloads/bank-account-response.json"),
+            BankAccountResponseDTO.class
+        );
         Mockito.when(bankAccountService.getBankAccountById(1L)).thenReturn(buildBankAccount());
         mockMvc.perform(get("/v1/accounts/1"))
                 .andExpect(status().isOk());
@@ -129,5 +132,27 @@ public class BankAccountControllerTest {
         Mockito.when(bankAccountService.getAllBankAccounts(any())).thenReturn(new PageImpl<>(List.of(buildBankAccount())));
         mockMvc.perform(get("/v1/accounts"))
                 .andExpect(status().isOk());
+    }
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        bankAccountRequestDTO = new BankAccountRequestDTO();
+        bankAccountRequestDTO.setAccountNumber("1234567890");
+        bankAccountRequestDTO.setUserId(1L);
+        bankAccountRequestDTO.setType(AccountType.CHECKING);
+        bankAccountRequestDTO.setBalance(new BigDecimal("100.00"));
+        bankAccountRequestDTO.setCurrency("USD");
+        bankAccountRequestDTO.setStatus(AccountStatus.ACTIVE);
+
+        bankAccountResponseDTO = new BankAccountResponseDTO();
+        bankAccountResponseDTO.setId(1L);
+        bankAccountResponseDTO.setAccountNumber("1234567890");
+        bankAccountResponseDTO.setUserId(1L);
+        bankAccountResponseDTO.setType(AccountType.CHECKING);
+        bankAccountResponseDTO.setBalance(new BigDecimal("100.00"));
+        bankAccountResponseDTO.setCurrency("USD");
+        bankAccountResponseDTO.setStatus(AccountStatus.ACTIVE);
+        bankAccountResponseDTO.setCreatedAt(LocalDateTime.now());
+        bankAccountResponseDTO.setUpdatedAt(LocalDateTime.now());
     }
 } 
