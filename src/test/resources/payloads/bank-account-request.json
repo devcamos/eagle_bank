@@ -1,0 +1,8 @@
+{
+  "accountNumber": "1234567890",
+  "userId": 1,
+  "type": "CHECKING",
+  "balance": 100.00,
+  "currency": "USD",
+  "status": "ACTIVE"
+} 
