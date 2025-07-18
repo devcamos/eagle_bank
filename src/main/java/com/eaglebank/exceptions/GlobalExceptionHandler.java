@@ -31,4 +31,13 @@ public class GlobalExceptionHandler {
         error.put("error", ex.getMessage());
         return error;
     }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public Map<String, String> handleGenericException(Exception ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Internal server error: " + ex.getMessage());
+        return error;
+    }
 } 
