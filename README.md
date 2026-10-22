@@ -1,46 +1,60 @@
 # Eagle Bank API
 
-A robust, best-practice Java/Spring Boot REST API for managing users, bank accounts, and transactions in a banking context.
+A Java 21 / Spring Boot 3.5 REST API for a simple bank: users, bank accounts and deposit/withdraw transactions, with validation, consistent error responses and OpenAPI docs. Built as a backend practice project.
 
 ## Features
-- **User Management:** Create, update, retrieve, and delete users.
-- **Bank Account Management:** Open, update, retrieve, and close bank accounts linked to users.
-- **Transaction Management:** Deposit, withdraw, and view transaction history for accounts. All business rules enforced (e.g., no overdrafts).
-- **DTO-Driven:** All input/output uses Data Transfer Objects (DTOs) for clear API contracts.
-- **Validation:** Strong validation on all endpoints with clear error messages.
-- **Exception Handling:** Global exception handler for consistent error responses.
-- **OpenAPI/Swagger:** All endpoints documented and grouped for easy exploration in Swagger UI.
-- **Test Coverage:** Comprehensive tests for controllers and services, with test data loaded from JSON files.
 
-## API Documentation
-- Interactive API docs available at `/swagger-ui.html` or `/swagger-ui/` when the app is running.
-- All endpoints are grouped and described for easy use.
+- **Users:** create, read, update and delete users.
+- **Bank accounts:** open, read, update and close accounts linked to a user.
+- **Transactions:** deposit, withdraw, look up a transaction and list an account's history. Withdrawals that would overdraw are rejected (`InsufficientFundsException`).
+- **DTO-driven contracts:** requests and responses use dedicated DTOs, never JPA entities.
+- **Validation and errors:** Bean Validation on inputs; a global exception handler returns consistent error bodies (404 for missing resources, 4xx for rule breaks).
+- **OpenAPI:** Swagger UI via springdoc.
 
-## Getting Started
+## Stack
 
-### Prerequisites
-- Java 17+
-- Maven 3.8+
+- Java 21, Spring Boot 3.5 (Web, Data JPA, Validation)
+- H2 in-memory database (no setup needed)
+- springdoc-openapi for API docs
+- JUnit 5 + Spring Boot Test (controller and service tests with JSON payload fixtures)
 
-### Running the App
+## Endpoints
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| POST | `/v1/users` | Create user |
+| GET / PUT / DELETE | `/v1/users/{id}` | Read, update, delete user |
+| POST | `/v1/accounts` | Open account |
+| GET / PUT / DELETE | `/v1/accounts/{id}` | Read, update, close account |
+| POST | `/v1/accounts/{accountId}/transactions/deposit` | Deposit |
+| POST | `/v1/accounts/{accountId}/transactions/withdraw` | Withdraw |
+| GET | `/v1/accounts/{accountId}/transactions` | Account history |
+| GET | `/v1/transactions/{transactionId}` | Single transaction |
+
+Full, interactive docs: `http://localhost:8080/swagger-ui/index.html` once the app is running.
+
+## Run locally
+
+Prerequisites: Java 21 (the Maven wrapper downloads Maven for you).
+
 ```sh
 ./mvnw spring-boot:run
 ```
-The API will be available at `http://localhost:8080` by default.
 
-### Running Tests
+The API listens on `http://localhost:8080`.
+
+## Tests
+
 ```sh
 ./mvnw test
 ```
 
-## Project Structure
-- `src/main/java/com/eaglebank/` — Main application code
-- `src/test/java/com/eaglebank/` — Tests
-- `src/test/resources/payloads/` — JSON payloads for tests
+## Project structure
 
-## Contributing
-Pull requests are welcome! Please ensure all tests pass and code is well-documented.
+- `src/main/java/com/eaglebank/` – controllers, services, repositories, DTOs, entities, exceptions
+- `src/test/java/com/eaglebank/` – controller and service tests
+- `src/test/resources/payloads/` – JSON payloads used by tests
 
----
+## Status
 
-**Eagle Bank API** — Secure, reliable, and developer-friendly banking API. 
+Practice project: not deployed, no authentication layer, data is in-memory and resets on restart.
